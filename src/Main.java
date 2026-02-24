@@ -1,23 +1,12 @@
 import java.util.Scanner;
+import java.util.Stack;
 
-class PalindromeChecker {
+public class Main {
 
-    private String input;
-
-    public PalindromeChecker(String input) {
-        this.input = input;
-    }
-
-    public boolean checkPalindrome() {
-        if (input == null || input.isEmpty()) {
-            return true;
-        }
-
-        String normalized = input.replaceAll("\\s+", "").toLowerCase();
-
+    public static boolean iterativePalindrome(String str) {
+        String normalized = str.replaceAll("\\s+", "").toLowerCase();
         int start = 0;
         int end = normalized.length() - 1;
-
         while (start < end) {
             if (normalized.charAt(start) != normalized.charAt(end)) {
                 return false;
@@ -25,27 +14,50 @@ class PalindromeChecker {
             start++;
             end--;
         }
-
         return true;
     }
-}
 
-public class Main {
+    public static boolean recursivePalindrome(String str, int start, int end) {
+        String normalized = str.replaceAll("\\s+", "").toLowerCase();
+        if (start >= end) return true;
+        if (normalized.charAt(start) != normalized.charAt(end)) return false;
+        return recursivePalindrome(normalized, start + 1, end - 1);
+    }
+
+    public static boolean stackPalindrome(String str) {
+        String normalized = str.replaceAll("\\s+", "").toLowerCase();
+        Stack<Character> stack = new Stack<>();
+        for (char c : normalized.toCharArray()) {
+            stack.push(c);
+        }
+        for (char c : normalized.toCharArray()) {
+            if (c != stack.pop()) return false;
+        }
+        return true;
+    }
 
     public static void main(String[] args) {
 
         Scanner scanner = new Scanner(System.in);
-
-        System.out.print("Enter a string: ");
+        System.out.print("Enter a string to test: ");
         String input = scanner.nextLine();
 
-        PalindromeChecker checker = new PalindromeChecker(input);
+        long startTime = System.nanoTime();
+        boolean iterativeResult = iterativePalindrome(input);
+        long iterativeTime = System.nanoTime() - startTime;
 
-        if (checker.checkPalindrome()) {
-            System.out.println("The given string is a Palindrome.");
-        } else {
-            System.out.println("The given string is NOT a Palindrome.");
-        }
+        startTime = System.nanoTime();
+        boolean recursiveResult = recursivePalindrome(input, 0, input.replaceAll("\\s+", "").length() - 1);
+        long recursiveTime = System.nanoTime() - startTime;
+
+        startTime = System.nanoTime();
+        boolean stackResult = stackPalindrome(input);
+        long stackTime = System.nanoTime() - startTime;
+
+        System.out.println("\n--- Performance Comparison ---");
+        System.out.printf("Iterative Method: Result=%b, Time=%d ns%n", iterativeResult, iterativeTime);
+        System.out.printf("Recursive Method: Result=%b, Time=%d ns%n", recursiveResult, recursiveTime);
+        System.out.printf("Stack Method:     Result=%b, Time=%d ns%n", stackResult, stackTime);
 
         scanner.close();
     }
